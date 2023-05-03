@@ -8,12 +8,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type UsersRepository struct {
+type usersRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewUsersRepository(db *pgxpool.Pool) (*UsersRepository, error) {
-	repo := &UsersRepository{db}
+func NewUsersRepository(db *pgxpool.Pool) (*usersRepository, error) {
+	repo := &usersRepository{db}
 	err := repo.Init(context.Background())
 	if err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func NewUsersRepository(db *pgxpool.Pool) (*UsersRepository, error) {
 	return repo, nil
 }
 
-func (repo *UsersRepository) Init(ctx context.Context) error {
+func (repo *usersRepository) Init(ctx context.Context) error {
 	query := `
         CREATE TABLE IF NOT EXISTS users(
             id SERIAL PRIMARY KEY,
@@ -39,7 +39,7 @@ func (repo *UsersRepository) Init(ctx context.Context) error {
 	return err
 }
 
-func (repo *UsersRepository) Create(ctx context.Context, user domain.User) (domain.User, error) {
+func (repo *usersRepository) Create(ctx context.Context, user domain.User) (domain.User, error) {
 	var id int
     err := repo.db.QueryRow(ctx,
 		"INSERT INTO users(first_name, last_name, email, login, password, created_at) values($1, $2, $3, $4, $5, now()) RETURNING id",
@@ -56,7 +56,7 @@ func (repo *UsersRepository) Create(ctx context.Context, user domain.User) (doma
 	return user, nil
 }
 
-func (repo *UsersRepository) FindAll(ctx context.Context) ([]domain.User, error) {
+func (repo *usersRepository) FindAll(ctx context.Context) ([]domain.User, error) {
 	rows, err := repo.db.Query(ctx, "SELECT * FROM users")
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (repo *UsersRepository) FindAll(ctx context.Context) ([]domain.User, error)
 	return users, nil
 }
 
-func (repo *UsersRepository) FindById(ctx context.Context, id int) (domain.User, error) {
+func (repo *usersRepository) FindById(ctx context.Context, id int) (domain.User, error) {
 	row := repo.db.QueryRow(ctx, "SELECT * FROM users WHERE id = $1", id)
 	var user domain.User
 
@@ -99,7 +99,7 @@ func (repo *UsersRepository) FindById(ctx context.Context, id int) (domain.User,
 	return user, nil
 }
 
-func (repo *UsersRepository) FindByEmail(ctx context.Context, email string) (domain.User, error) {
+func (repo *usersRepository) FindByEmail(ctx context.Context, email string) (domain.User, error) {
 	row := repo.db.QueryRow(ctx, "SELECT * FROM users WHERE email = $1", email)
 	var user domain.User
 
@@ -117,7 +117,7 @@ func (repo *UsersRepository) FindByEmail(ctx context.Context, email string) (dom
 }
 
 // TODO: return user
-func (repo *UsersRepository) Delete(ctx context.Context, id int) (domain.User, error) {
+func (repo *usersRepository) Delete(ctx context.Context, id int) (domain.User, error) {
 	res, err := repo.db.Exec(ctx, "DELETE FROM users WHERE id = $1", id)
 	if err != nil {
 		return domain.User{}, err
@@ -130,7 +130,7 @@ func (repo *UsersRepository) Delete(ctx context.Context, id int) (domain.User, e
 	return domain.User{}, nil
 }
 
-func (repo *UsersRepository) Update(ctx context.Context, user domain.User) (domain.User, error) {
+func (repo *usersRepository) Update(ctx context.Context, user domain.User) (domain.User, error) {
 	row := repo.db.QueryRow(ctx,
 		"UPDATE users SET first_name = $2, last_name = $3, email = $4, login = $5, password = $6 WHERE id = $1",
 		user.ID, user.FirstName, user.LastName, user.Email, user.Login, user.Password)

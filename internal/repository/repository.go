@@ -27,14 +27,12 @@ func NewUsersRepository() *UsersRepository {
 	return &UsersRepository{Users: simplerepository.NewUsersRepository()}
 }
 
-func NewUsersRepositoryPostgres() *UsersRepository {
-    dbpool, err := pgxpool.New(context.TODO(), "postgres://messenger:messenger@localhost:5432/messenger")
+func NewUsersRepositoryPostgres(db *pgxpool.Pool) *UsersRepository {
+    userRepo, err := postgres.NewUsersRepository(db) 
     if err != nil {
-        log.Fatalf("unable to establish connection with database: %v", err)
-    }
-	userRepo, err := postgres.NewUsersRepository(dbpool)
-	if err != nil {
         log.Fatalf("unable to create repository: %v", err)
-	}
-	return &UsersRepository{Users: userRepo}
+    }
+
+    return &UsersRepository{Users: userRepo}
 }
+
