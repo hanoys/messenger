@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -18,8 +17,8 @@ func Run() {
 	dbpool := postgres.CreateConnectionPool(context.TODO(),
     "postgres://"+config.DB.User+":"+config.DB.Password+"@"+config.DB.Host+":"+config.DB.Port+"/"+config.DB.DBName)
 	repo := repository.NewUsersRepositoryPostgres(dbpool)
-	service := service.NewUsersService(repo)
-	handler := handler.NewHandler(service)
+	services := service.NewServices(repo)
+	handler := handler.NewHandler(services)
 
 	server := http.Server{
 		Handler:      handler.Init(),

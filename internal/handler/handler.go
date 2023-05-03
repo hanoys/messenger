@@ -7,16 +7,16 @@ import (
 )
 
 type Handler struct {
-    userService *service.UsersService
+    services *service.Services
 }
 
-func NewHandler(service *service.UsersService) *Handler {
-    return &Handler{service} 
+func NewHandler(services *service.Services) *Handler {
+    return &Handler{services} 
 }
 
 func (h *Handler) Init() *mux.Router {
     router := mux.NewRouter() 
-    handler := v1.NewHandler(h.userService)
+    handler := v1.NewHandler(h.services)
     handler.InitRoutes(router)
     return router
 }

@@ -23,7 +23,7 @@ func (h *Handler) InitUserRoutes(router *mux.Router) {
 func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
 
-	users, err := h.userService.FindAll()
+	users, err := h.services.Users.FindAll()
 	if err != nil {
         writeError(w, http.StatusConflict, err.Error())
 		return
@@ -43,7 +43,7 @@ func (h *Handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.FindByID(id)
+	user, err := h.services.Users.FindByID(id)
 	if err != nil {
         writeError(w, http.StatusConflict, err.Error())
         return
@@ -60,7 +60,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
     w.Header().Add("Content-Type", "application/json")
 	json.NewDecoder(r.Body).Decode(&user)
 
-	user, err := h.userService.Create(user)
+	user, err := h.services.Users.Create(user)
 	if err != nil {
         writeError(w, http.StatusConflict, err.Error())
         return

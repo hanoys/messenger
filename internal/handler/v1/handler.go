@@ -6,11 +6,11 @@ import (
 )
 
 type Handler struct {
-	userService *service.UsersService
+    services *service.Services
 }
 
-func NewHandler(userService *service.UsersService) *Handler {
-	return &Handler{userService}
+func NewHandler(services *service.Services) *Handler {
+	return &Handler{services}
 }
 
 func (h *Handler) InitRoutes(router *mux.Router) {
