@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/hanoy/messenger/internal/repository/postgres"
@@ -19,8 +18,21 @@ type Users interface {
 	Update(ctx context.Context, user domain.User) (domain.User, error)
 }
 
+type Chats interface {
+	FindAll(ctx context.Context) ([]domain.Chat, error)
+	FindByID(ctx context.Context, id int) (domain.Chat, error)
+	Create(ctx context.Context, chat domain.Chat) (domain.Chat, error)
+	Delete(ctx context.Context, id int) (domain.Chat, error)
+	Update(ctx context.Context, chat domain.Chat) (domain.Chat, error)
+}
+
 type UsersRepository struct {
 	Users
+}
+
+type Repositories struct {
+	Users
+	Chats
 }
 
 func NewUsersRepository() *UsersRepository {
@@ -28,11 +40,10 @@ func NewUsersRepository() *UsersRepository {
 }
 
 func NewUsersRepositoryPostgres(db *pgxpool.Pool) *UsersRepository {
-    userRepo, err := postgres.NewUsersRepository(db) 
-    if err != nil {
-        log.Fatalf("unable to create repository: %v", err)
-    }
-
-    return &UsersRepository{Users: userRepo}
+	return &UsersRepository{Users: postgres.NewUsersRepository(db)}
 }
 
+func NewRepositories(db *pgxpool.Pool) *Repositories {
+	return &Repositories{Users: postgres.NewUsersRepository(db),
+		Chats: postgres.NewChatRepository(db)}
+}

@@ -12,36 +12,13 @@ type usersRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewUsersRepository(db *pgxpool.Pool) (*usersRepository, error) {
-	repo := &usersRepository{db}
-	err := repo.Init(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	return repo, nil
-}
-
-func (repo *usersRepository) Init(ctx context.Context) error {
-	query := `
-        CREATE TABLE IF NOT EXISTS users(
-            id SERIAL PRIMARY KEY,
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            login TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL UNIQUE,
-            created_at TIMESTAMP
-        );
-    `
-
-	_, err := repo.db.Exec(ctx, query)
-	return err
+func NewUsersRepository(db *pgxpool.Pool) *usersRepository {
+	return &usersRepository{db}
 }
 
 func (repo *usersRepository) Create(ctx context.Context, user domain.User) (domain.User, error) {
 	var id int
-    err := repo.db.QueryRow(ctx,
+	err := repo.db.QueryRow(ctx,
 		"INSERT INTO users(first_name, last_name, email, login, password, created_at) values($1, $2, $3, $4, $5, now()) RETURNING id",
 		user.FirstName,
 		user.LastName,
@@ -82,6 +59,7 @@ func (repo *usersRepository) FindAll(ctx context.Context) ([]domain.User, error)
 	return users, nil
 }
 
+// TODO: make id uppercase
 func (repo *usersRepository) FindById(ctx context.Context, id int) (domain.User, error) {
 	row := repo.db.QueryRow(ctx, "SELECT * FROM users WHERE id = $1", id)
 	var user domain.User
