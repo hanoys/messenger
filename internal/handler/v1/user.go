@@ -13,6 +13,7 @@ func (h *Handler) InitUserRoutes(router *mux.Router) {
 	router.HandleFunc("/users", h.FindAllUsers).Methods(http.MethodGet)
 	router.HandleFunc("/users/{id}", h.FindUserById).Methods(http.MethodGet)
 	router.HandleFunc("/users", h.CreateUser).Methods(http.MethodPut)
+    router.HandleFunc("/users/{id}", h.DeleteUser).Methods(http.MethodDelete)
 }
 
 // url: users/
@@ -50,7 +51,7 @@ func (h *Handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 // url: users/
-// method: post
+// method: put
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
@@ -81,7 +82,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	} 
 
-    user, err := h.services.Chats.Delete(id)
+    user, err := h.services.Users.Delete(id)
     if err != nil {
         writeError(w, http.StatusConflict, err.Error())
         return

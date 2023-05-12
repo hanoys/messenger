@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -19,8 +18,7 @@ func NewChatRepository(db *pgxpool.Pool) *chatRepository {
 func (repo *chatRepository) Create(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
 	var id int
 	err := repo.db.QueryRow(ctx,
-		"INSERT INTO chats(id, users_id) values ($1, $2) RETURNING id",
-		chat.ID,
+		"INSERT INTO chats(users_id) values ($1) RETURNING id",
 		chat.UsersID).Scan(&id)
 	if err != nil {
 		return domain.Chat{}, err
@@ -62,18 +60,15 @@ func (repo *chatRepository) FindByID(ctx context.Context, id int) (domain.Chat, 
 	return chat, nil
 }
 
-// TODO: return chat
 func (repo *chatRepository) Delete(ctx context.Context, id int) (domain.Chat, error) {
-	res, err := repo.db.Exec(ctx, "DELETE FROM chats WHERE id = $1", id)
-	if err != nil {
+	row := repo.db.QueryRow(ctx, "DELETE FROM chats WHERE id = $1 RETURNING *", id)
+
+	var deletedChat domain.Chat
+	if err := row.Scan(&deletedChat.ID, &deletedChat.UsersID); err != nil {
 		return domain.Chat{}, err
 	}
 
-	if res.RowsAffected() == 0 {
-		return domain.Chat{}, errors.New("chat not found")
-	}
-
-	return domain.Chat{}, nil
+	return deletedChat, nil
 }
 
 func (repo *chatRepository) Update(ctx context.Context, chat domain.Chat) (domain.Chat, error) {

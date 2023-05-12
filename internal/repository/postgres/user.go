@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"errors"
 
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -94,18 +93,21 @@ func (repo *usersRepository) FindByEmail(ctx context.Context, email string) (dom
 	return user, nil
 }
 
-// TODO: return user
 func (repo *usersRepository) Delete(ctx context.Context, id int) (domain.User, error) {
-	res, err := repo.db.Exec(ctx, "DELETE FROM users WHERE id = $1", id)
-	if err != nil {
+    row := repo.db.QueryRow(ctx, "DELETE FROM users WHERE id = $1 RETURNING *", id)
+    
+    var deletedUser domain.User
+    if err := row.Scan(&deletedUser.ID,
+		&deletedUser.FirstName,
+		&deletedUser.LastName,
+		&deletedUser.Email,
+		&deletedUser.Login,
+		&deletedUser.Password,
+		&deletedUser.CreatedAt); err != nil {
 		return domain.User{}, err
-	}
+    }
 
-	if res.RowsAffected() == 0 {
-		return domain.User{}, errors.New("user not found")
-	}
-
-	return domain.User{}, nil
+    return deletedUser, nil
 }
 
 func (repo *usersRepository) Update(ctx context.Context, user domain.User) (domain.User, error) {

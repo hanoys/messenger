@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/hanoy/messenger/internal/repository"
@@ -16,7 +17,16 @@ func newUsersService(repositories *repository.Repositories) *usersService {
 }
 
 func (s *usersService) FindAll() ([]domain.User, error) {
-    return s.repositories.Users.FindAll(context.TODO())
+    users, err := s.repositories.Users.FindAll(context.TODO())
+    if err != nil {
+        return nil, err
+    }
+
+    if len(users) == 0 {
+        return nil, errors.New("users not found")
+    }
+
+    return users, nil
 }
 
 func (s *usersService) FindByID(id int) (domain.User, error) {

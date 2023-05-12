@@ -12,6 +12,12 @@ import (
 
 func (h *Handler) InitChatRoutes(router *mux.Router) {
 	router.HandleFunc("/chat", h.JoinChat).Methods(http.MethodGet)
+
+    router.HandleFunc("/chats", h.FindAllChats).Methods(http.MethodGet)
+	router.HandleFunc("/chats/{id}", h.FindChatsByID).Methods(http.MethodGet)
+	router.HandleFunc("/chats", h.CreateChat).Methods(http.MethodPut)
+    router.HandleFunc("/chats/{id}", h.DeleteChat).Methods(http.MethodDelete)
+
 }
 
 func (h *Handler) JoinChat(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +59,7 @@ func (h *Handler) FindChatsByID(w http.ResponseWriter, r *http.Request) {
 }
 
 // url: chats/
-// method: post
+// method: put
 func (h *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
