@@ -16,7 +16,8 @@ func NewHandler(services *service.Services) *Handler {
 
 func (h *Handler) Init() *mux.Router {
     router := mux.NewRouter() 
+    apiRouter := router.PathPrefix("/api").Subrouter()
     handler := v1.NewHandler(h.services)
-    handler.InitRoutes(router)
+    handler.InitRoutes(apiRouter)
     return router
 }

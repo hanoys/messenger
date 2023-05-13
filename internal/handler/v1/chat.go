@@ -24,7 +24,7 @@ func (h *Handler) JoinChat(w http.ResponseWriter, r *http.Request) {
 	websocket.UpgradeConnection(w, r)
 }
 
-// url: chats/
+// url: /api/chats
 // method: get
 func (h *Handler) FindAllChats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "applicatoin/json")
@@ -38,7 +38,7 @@ func (h *Handler) FindAllChats(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(chats)
 }
 
-// url: chats/id
+// url: api/chats/{id}
 // method: get
 func (h *Handler) FindChatsByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
@@ -58,7 +58,7 @@ func (h *Handler) FindChatsByID(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(chat)
 }
 
-// url: chats/
+// url: api/chats
 // method: put
 func (h *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
@@ -79,7 +79,7 @@ func (h *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(chat)
 }
 
-// url: chats/{id}
+// url: api/chats/{id}
 // method: delete
 func (h *Handler) DeleteChat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")

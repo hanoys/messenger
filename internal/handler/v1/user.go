@@ -13,10 +13,10 @@ func (h *Handler) InitUserRoutes(router *mux.Router) {
 	router.HandleFunc("/users", h.FindAllUsers).Methods(http.MethodGet)
 	router.HandleFunc("/users/{id}", h.FindUserById).Methods(http.MethodGet)
 	router.HandleFunc("/users", h.CreateUser).Methods(http.MethodPut)
-    router.HandleFunc("/users/{id}", h.DeleteUser).Methods(http.MethodDelete)
+	router.HandleFunc("/users/{id}", h.DeleteUser).Methods(http.MethodDelete)
 }
 
-// url: users/
+// url: api/users
 // method: get
 func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
@@ -30,7 +30,7 @@ func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-// url: users/{id}
+// url: api/users/{id}
 // method: get
 func (h *Handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
@@ -50,7 +50,7 @@ func (h *Handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-// url: users/
+// url: api/users/
 // method: put
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
@@ -71,23 +71,23 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
-// url: users/{id}
+// url: api/users/{id}
 // method: delete
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-    w.Header().Add("Content-Type", "application/json")
-    
-    id, err := strconv.Atoi(mux.Vars(r)["id"])
+	w.Header().Add("Content-Type", "application/json")
+
+	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
-	} 
+	}
 
-    user, err := h.services.Users.Delete(id)
-    if err != nil {
-        writeError(w, http.StatusConflict, err.Error())
-        return
-    }
+	user, err := h.services.Users.Delete(id)
+	if err != nil {
+		writeError(w, http.StatusConflict, err.Error())
+		return
+	}
 
-    json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(user)
 
 }
