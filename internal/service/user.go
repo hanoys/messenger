@@ -9,42 +9,42 @@ import (
 )
 
 type usersService struct {
-    repositories *repository.Repositories
+	repositories *repository.Repositories
 }
 
 func newUsersService(repositories *repository.Repositories) *usersService {
-    return &usersService{repositories: repositories}
+	return &usersService{repositories: repositories}
 }
 
 func (s *usersService) FindAll() ([]domain.User, error) {
-    users, err := s.repositories.Users.FindAll(context.TODO())
-    if err != nil {
-        return nil, err
-    }
+	users, err := s.repositories.Users.FindAll(context.TODO())
+	if err != nil {
+		return nil, err
+	}
 
-    if len(users) == 0 {
-        return nil, errors.New("users not found")
-    }
+	if len(users) == 0 {
+		return nil, errors.New("users not found")
+	}
 
-    return users, nil
+	return users, nil
 }
 
 func (s *usersService) FindByID(id int) (domain.User, error) {
-    return s.repositories.Users.FindById(context.TODO(), id)
+	return s.repositories.Users.FindById(context.TODO(), id)
 }
 
 func (s *usersService) FindByEmail(email string) (domain.User, error) {
-    return s.repositories.Users.FindByEmail(context.TODO(), email)
+	return s.repositories.Users.FindByEmail(context.TODO(), email)
 }
 
 func (s *usersService) Create(user domain.User) (domain.User, error) {
-    return s.repositories.Users.Create(context.TODO(), user)
+	return s.repositories.Users.Create(context.TODO(), user)
 }
 
 func (s *usersService) Delete(id int) (domain.User, error) {
-    return s.repositories.Users.Delete(context.TODO(), id)
+	return s.repositories.Users.Delete(context.TODO(), id)
 }
 
 func (s *usersService) Update(user domain.User) (domain.User, error) {
-    return s.repositories.Users.Update(context.TODO(), user)
+	return s.repositories.Users.Update(context.TODO(), user)
 }

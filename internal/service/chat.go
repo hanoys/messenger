@@ -26,7 +26,7 @@ func (s *chatService) FindAll() ([]domain.Chat, error) {
 		return nil, errors.New("chats not found")
 	}
 
-    return chats, nil
+	return chats, nil
 }
 
 func (s *chatService) FindByID(id int) (domain.Chat, error) {
