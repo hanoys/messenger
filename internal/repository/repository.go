@@ -26,6 +26,15 @@ type Chats interface {
 	Update(ctx context.Context, chat domain.Chat) (domain.Chat, error)
 }
 
+type Messages interface {
+	Add(ctx context.Context, msg domain.Message) (domain.Message, error)
+	FindAll(ctx context.Context) ([]domain.Message, error)
+	FindByID(ctx context.Context, id int) (domain.Message, error)
+	FindBySenderID(ctx context.Context, id int) ([]domain.Message, error)
+	FindByRecipientID(ctx context.Context, id int) ([]domain.Message, error)
+	Delete(ctx context.Context, id int) (domain.Message, error)
+}
+
 type UsersRepository struct {
 	Users
 }
@@ -33,6 +42,7 @@ type UsersRepository struct {
 type Repositories struct {
 	Users
 	Chats
+	Messages
 }
 
 func NewUsersRepository() *UsersRepository {
@@ -45,5 +55,6 @@ func NewUsersRepositoryPostgres(db *pgxpool.Pool) *UsersRepository {
 
 func NewRepositories(db *pgxpool.Pool) *Repositories {
 	return &Repositories{Users: postgres.NewUsersRepository(db),
-		Chats: postgres.NewChatRepository(db)}
+		Chats:    postgres.NewChatRepository(db),
+		Messages: postgres.NewMessageRepository(db)}
 }

@@ -14,6 +14,8 @@ func NewHandler(services *service.Services) *Handler {
 }
 
 func (h *Handler) InitRoutes(router *mux.Router) {
+    router.Use(h.basicAuth)
     h.InitUserRoutes(router)
     h.InitChatRoutes(router)
+    h.InitMessageRoutes(router)
 }
