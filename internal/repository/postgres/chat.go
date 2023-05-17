@@ -18,7 +18,7 @@ func NewChatRepository(db *pgxpool.Pool) *chatRepository {
 func (repo *chatRepository) Create(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
 	var id int
 	err := repo.db.QueryRow(ctx,
-		"INSERT INTO chats(users_id) values ($1) RETURNING id",
+		"INSERT INTO chats(users_id) VALUES ($1) RETURNING id",
 		chat.UsersID).Scan(&id)
 	if err != nil {
 		return domain.Chat{}, err

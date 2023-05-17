@@ -23,7 +23,7 @@ func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := h.services.Users.FindAll()
 	if err != nil {
-		writeError(w, http.StatusConflict, err.Error())
+		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -43,7 +43,7 @@ func (h *Handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.services.Users.FindByID(id)
 	if err != nil {
-		writeError(w, http.StatusConflict, err.Error())
+		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 

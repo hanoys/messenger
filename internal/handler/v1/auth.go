@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func (h *Handler) basicAuth(next http.HandlerFunc) http.HandlerFunc {
+func (h *Handler) basicAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		email, password, ok := r.BasicAuth()
 		if ok {
@@ -31,10 +31,8 @@ func (h *Handler) basicAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
+		w.Header().Set("Content-Type", "application/json")
 		writeError(w, http.StatusUnauthorized, "Unauthorized")
 	})
 }
 
-func (h *Handler) AuthUser(w http.ResponseWriter, r *http.Request) {
-    
-}

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/hanoy/messenger/internal/repository"
@@ -23,7 +22,7 @@ func (s *usersService) FindAll() ([]domain.User, error) {
 	}
 
 	if len(users) == 0 {
-		return nil, errors.New("users not found")
+		return nil, RowsNotFoundErr
 	}
 
 	return users, nil
