@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"time"
 
@@ -13,8 +14,16 @@ import (
 )
 
 func Run() {
-	config := config.GetConfig()
-	dbpool := postgres.CreateConnectionPool(context.TODO(), config.DB.URL)
+	config, err := config.GetConfig()
+    if err != nil {
+        log.Fatalf("cannot load config: %v", err)
+    }
+
+	dbpool, err := postgres.CreateConnectionPool(context.Background(), config.DB.URL)
+    if err != nil {
+		log.Fatalf("unable to establish connection with database: %v", err)
+    }
+
     repo := repository.NewRepositories(dbpool)
 	services := service.NewServices(repo)
 	handler := handler.NewHandler(services)
@@ -26,5 +35,8 @@ func Run() {
 		ReadTimeout:  time.Second * 15,
 	}
 
-	server.ListenAndServe()
+    log.Printf("Starting server at: %v\n", server.Addr)
+    if err := server.ListenAndServe(); err != nil {
+        log.Fatalf("error while listening: %v", err)
+    }
 }

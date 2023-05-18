@@ -1,8 +1,6 @@
 package config
 
 import (
-	"log"
-
 	"github.com/JeremyLoy/config"
 )
 
@@ -17,12 +15,12 @@ type Config struct {
 	}
 }
 
-func GetConfig() *Config {
+func GetConfig() (*Config, error) {
 	var conf Config
 	err := config.FromEnv().To(&conf.DB)
 	if err != nil {
-		log.Fatalf("configuration error: %v", err)
+		return nil, err
 	}
 
-	return &conf
+	return &conf, nil
 }
