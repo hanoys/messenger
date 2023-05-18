@@ -15,8 +15,8 @@ func newUsersService(repositories *repository.Repositories) *usersService {
 	return &usersService{repositories: repositories}
 }
 
-func (s *usersService) FindAll() ([]domain.User, error) {
-	users, err := s.repositories.Users.FindAll(context.TODO())
+func (s *usersService) FindAll(ctx context.Context) ([]domain.User, error) {
+	users, err := s.repositories.Users.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -28,22 +28,22 @@ func (s *usersService) FindAll() ([]domain.User, error) {
 	return users, nil
 }
 
-func (s *usersService) FindByID(id int) (domain.User, error) {
-	return s.repositories.Users.FindById(context.TODO(), id)
+func (s *usersService) FindByID(ctx context.Context, id int) (domain.User, error) {
+	return s.repositories.Users.FindById(ctx, id)
 }
 
-func (s *usersService) FindByEmail(email string) (domain.User, error) {
-	return s.repositories.Users.FindByEmail(context.TODO(), email)
+func (s *usersService) FindByEmail(ctx context.Context, email string) (domain.User, error) {
+	return s.repositories.Users.FindByEmail(ctx, email)
 }
 
-func (s *usersService) Create(user domain.User) (domain.User, error) {
-	return s.repositories.Users.Create(context.TODO(), user)
+func (s *usersService) Create(ctx context.Context, user domain.User) (domain.User, error) {
+	return s.repositories.Users.Create(ctx, user)
 }
 
-func (s *usersService) Delete(id int) (domain.User, error) {
-	return s.repositories.Users.Delete(context.TODO(), id)
+func (s *usersService) Delete(ctx context.Context, id int) (domain.User, error) {
+	return s.repositories.Users.Delete(ctx, id)
 }
 
-func (s *usersService) Update(user domain.User) (domain.User, error) {
-	return s.repositories.Users.Update(context.TODO(), user)
+func (s *usersService) Update(ctx context.Context, user domain.User) (domain.User, error) {
+	return s.repositories.Users.Update(ctx, user)
 }

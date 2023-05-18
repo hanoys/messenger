@@ -15,12 +15,12 @@ func newMessagesService(repositories *repository.Repositories) *messagesService 
 	return &messagesService{repositories: repositories}
 }
 
-func (s *messagesService) Add(msg domain.Message) (domain.Message, error) {
-	return s.repositories.Messages.Add(context.TODO(), msg)
+func (s *messagesService) Add(ctx context.Context, msg domain.Message) (domain.Message, error) {
+	return s.repositories.Messages.Add(ctx, msg)
 }
 
-func (s *messagesService) FindAll() ([]domain.Message, error) {
-	messages, err := s.repositories.Messages.FindAll(context.TODO())
+func (s *messagesService) FindAll(ctx context.Context) ([]domain.Message, error) {
+	messages, err := s.repositories.Messages.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -32,12 +32,12 @@ func (s *messagesService) FindAll() ([]domain.Message, error) {
 	return messages, nil
 }
 
-func (s *messagesService) FindByID(id int) (domain.Message, error) {
-	return s.repositories.Messages.FindByID(context.TODO(), id)
+func (s *messagesService) FindByID(ctx context.Context, id int) (domain.Message, error) {
+	return s.repositories.Messages.FindByID(ctx, id)
 }
 
-func (s *messagesService) FindBySenderID(id int) ([]domain.Message, error) {
-	messages, err := s.repositories.Messages.FindBySenderID(context.TODO(), id)
+func (s *messagesService) FindBySenderID(ctx context.Context, id int) ([]domain.Message, error) {
+	messages, err := s.repositories.Messages.FindBySenderID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +49,8 @@ func (s *messagesService) FindBySenderID(id int) ([]domain.Message, error) {
 	return messages, nil
 }
 
-func (s *messagesService) FindByRecipientID(id int) ([]domain.Message, error) {
-	messages, err := s.repositories.Messages.FindByRecipientID(context.TODO(), id)
+func (s *messagesService) FindByRecipientID(ctx context.Context, id int) ([]domain.Message, error) {
+	messages, err := s.repositories.Messages.FindByRecipientID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +62,6 @@ func (s *messagesService) FindByRecipientID(id int) ([]domain.Message, error) {
 	return messages, nil
 }
 
-func (s *messagesService) Delete(id int) (domain.Message, error) {
-	return s.repositories.Messages.Delete(context.TODO(), id)
+func (s *messagesService) Delete(ctx context.Context, id int) (domain.Message, error) {
+	return s.repositories.Messages.Delete(ctx, id)
 }

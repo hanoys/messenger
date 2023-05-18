@@ -13,7 +13,7 @@ func (h *Handler) basicAuth(next http.Handler) http.Handler {
 			emailHash := sha256.Sum256([]byte(email))
 			passwordHash := sha256.Sum256([]byte(password))
 
-			user, err := h.services.Users.FindByEmail(email)
+			user, err := h.services.Users.FindByEmail(r.Context(), email)
 			if err == nil {
 				expectedEmailHash := sha256.Sum256([]byte(user.Email))
 				expectedPasswordHash := sha256.Sum256([]byte(user.Password))

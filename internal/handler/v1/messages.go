@@ -28,7 +28,7 @@ func (h *Handler) AddMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg, err = h.services.Messages.Add(msg)
+	msg, err = h.services.Messages.Add(r.Context(), msg)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -42,7 +42,7 @@ func (h *Handler) AddMessage(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) FindAllMessages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "applicatoin/json")
 
-	messages, err := h.services.Messages.FindAll()
+	messages, err := h.services.Messages.FindAll(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -62,7 +62,7 @@ func (h *Handler) FindMessagesByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := h.services.Messages.FindByID(id)
+	messages, err := h.services.Messages.FindByID(r.Context(), id)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -82,7 +82,7 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg, err := h.services.Messages.Delete(id)
+	msg, err := h.services.Messages.Delete(r.Context(), id)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return

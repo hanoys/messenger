@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	"errors"
+
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/hanoy/messenger/internal/repository"
 )
@@ -9,29 +11,29 @@ import (
 var RowsNotFoundErr = errors.New("rows not found")
 
 type Users interface {
-	FindAll() ([]domain.User, error)
-	FindByID(id int) (domain.User, error)
-	FindByEmail(email string) (domain.User, error)
-	Create(user domain.User) (domain.User, error)
-	Delete(id int) (domain.User, error)
-	Update(user domain.User) (domain.User, error)
+	FindAll(ctx context.Context) ([]domain.User, error)
+	FindByID(ctx context.Context, id int) (domain.User, error)
+	FindByEmail(ctx context.Context, email string) (domain.User, error)
+	Create(ctx context.Context, user domain.User) (domain.User, error)
+	Delete(ctx context.Context, id int) (domain.User, error)
+	Update(ctx context.Context, user domain.User) (domain.User, error)
 }
 
 type Chats interface {
-	FindAll() ([]domain.Chat, error)
-	FindByID(id int) (domain.Chat, error)
-	Create(chat domain.Chat) (domain.Chat, error)
-	Delete(id int) (domain.Chat, error)
-	Update(chat domain.Chat) (domain.Chat, error)
+	FindAll(ctx context.Context) ([]domain.Chat, error)
+	FindByID(ctx context.Context, id int) (domain.Chat, error)
+	Create(ctx context.Context, chat domain.Chat) (domain.Chat, error)
+	Delete(ctx context.Context, id int) (domain.Chat, error)
+	Update(ctx context.Context, chat domain.Chat) (domain.Chat, error)
 }
 
 type Messages interface {
-	Add(msg domain.Message) (domain.Message, error)
-	FindAll() ([]domain.Message, error)
-	FindByID(id int) (domain.Message, error)
-	FindBySenderID(id int) ([]domain.Message, error)
-	FindByRecipientID(id int) ([]domain.Message, error)
-	Delete(id int) (domain.Message, error)
+	Add(ctx context.Context, msg domain.Message) (domain.Message, error)
+	FindAll(ctx context.Context) ([]domain.Message, error)
+	FindByID(ctx context.Context, id int) (domain.Message, error)
+	FindBySenderID(ctx context.Context, id int) ([]domain.Message, error)
+	FindByRecipientID(ctx context.Context, id int) ([]domain.Message, error)
+	Delete(ctx context.Context, id int) (domain.Message, error)
 }
 
 type Services struct {

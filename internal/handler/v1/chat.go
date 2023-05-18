@@ -29,7 +29,7 @@ func (h *Handler) JoinChat(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) FindAllChats(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "applicatoin/json")
 
-	chats, err := h.services.Chats.FindAll()
+	chats, err := h.services.Chats.FindAll(r.Context())
 	if err != nil {
 		writeError(w, http.StatusConflict, err.Error())
 		return
@@ -49,7 +49,7 @@ func (h *Handler) FindChatsByID(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    chat, err := h.services.Chats.FindByID(id)
+    chat, err := h.services.Chats.FindByID(r.Context(), id)
     if err != nil {
         writeError(w, http.StatusConflict, err.Error())
         return 
@@ -70,7 +70,7 @@ func (h *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    chat, err = h.services.Chats.Create(chat)
+    chat, err = h.services.Chats.Create(r.Context(), chat)
     if err != nil {
         writeError(w, http.StatusConflict, err.Error())
         return
@@ -90,7 +90,7 @@ func (h *Handler) DeleteChat(w http.ResponseWriter, r *http.Request) {
 		return
 	} 
 
-    chat, err := h.services.Chats.Delete(id)
+    chat, err := h.services.Chats.Delete(r.Context(), id)
     if err != nil {
         writeError(w, http.StatusConflict, err.Error())
         return
