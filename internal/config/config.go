@@ -15,12 +15,13 @@ type Config struct {
 	}
 }
 
-func GetConfig() (*Config, error) {
-	var conf Config
-	err := config.FromEnv().To(&conf.DB)
-	if err != nil {
-		return nil, err
-	}
+func GetConfig(configPath string) (*Config, error) {
+    var conf Config 
+    err := config.From(configPath).To(&conf.DB)
+    if err != nil {
+        return nil, err
+    }
 
-	return &conf, nil
+    return &conf, nil
 }
+

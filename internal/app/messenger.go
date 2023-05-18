@@ -13,8 +13,8 @@ import (
 	"github.com/hanoy/messenger/pkg/db/postgres"
 )
 
-func Run() {
-	config, err := config.GetConfig()
+func Run(configPath string) {
+	config, err := config.GetConfig(configPath)
     if err != nil {
         log.Fatalf("cannot load config: %v", err)
     }
