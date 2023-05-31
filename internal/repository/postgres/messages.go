@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,17 +18,20 @@ func NewMessageRepository(db *pgxpool.Pool) *messageRepository {
 
 func (repo *messageRepository) Add(ctx context.Context, msg domain.Message) (domain.Message, error) {
 	var id int
+    var sent_time time.Time
 	err := repo.db.QueryRow(ctx,
-		"INSERT INTO messages(sender_id, recipient_id, time, body) VALUES ($1, $2, now(), $3) RETURNING id",
+		"INSERT INTO messages(sender_id, recipient_id, chat_id, time, body) VALUES ($1, $2, $3, now(), $4) RETURNING id, time",
 		msg.SenderID,
 		msg.RecipientID,
-		msg.Body).Scan(&id)
+        msg.ChatID,
+		msg.Body).Scan(&id, &sent_time)
 
 	if err != nil {
 		return domain.Message{}, err
 	}
 
 	msg.ID = id
+    msg.Time = sent_time
 	return msg, nil
 }
 
@@ -45,6 +49,7 @@ func (repo *messageRepository) FindAll(ctx context.Context) ([]domain.Message, e
 		if err := rows.Scan(&msg.ID,
 			&msg.SenderID,
 			&msg.RecipientID,
+            &msg.ChatID,
 			&msg.Time,
 			&msg.Body); err != nil {
 			return nil, err
@@ -63,6 +68,7 @@ func (repo *messageRepository) FindByID(ctx context.Context, id int) (domain.Mes
 	if err := row.Scan(&msg.ID,
 		&msg.SenderID,
 		&msg.RecipientID,
+        &msg.ChatID,
 		&msg.Time,
 		&msg.Body); err != nil {
 		return domain.Message{}, err
@@ -85,6 +91,7 @@ func (repo *messageRepository) FindBySenderID(ctx context.Context, sender_id int
 		if err := rows.Scan(&msg.ID,
 			&msg.SenderID,
 			&msg.RecipientID,
+            &msg.ChatID,
 			&msg.Time,
 			&msg.Body); err != nil {
 			return nil, err
@@ -110,6 +117,7 @@ func (repo *messageRepository) FindByRecipientID(ctx context.Context, recipient_
 		if err := rows.Scan(&msg.ID,
 			&msg.SenderID,
 			&msg.RecipientID,
+            &msg.ChatID,
 			&msg.Time,
 			&msg.Body); err != nil {
 			return nil, err
@@ -128,6 +136,7 @@ func (repo *messageRepository) Delete(ctx context.Context, id int) (domain.Messa
 	if err := row.Scan(&deletedMsg.ID,
 		&deletedMsg.SenderID,
 		&deletedMsg.RecipientID,
+        &deletedMsg.ChatID,
 		&deletedMsg.Time,
 		&deletedMsg.Body); err != nil {
 		return domain.Message{}, err

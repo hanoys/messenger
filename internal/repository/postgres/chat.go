@@ -18,8 +18,8 @@ func NewChatRepository(db *pgxpool.Pool) *chatRepository {
 func (repo *chatRepository) Create(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
 	var id int
 	err := repo.db.QueryRow(ctx,
-		"INSERT INTO chats(users_id) VALUES ($1) RETURNING id",
-		chat.UsersID).Scan(&id)
+		"INSERT INTO chats(name, type) VALUES ($1, $2) RETURNING id",
+		chat.Name, chat.Type).Scan(&id)
 	if err != nil {
 		return domain.Chat{}, err
 	}
@@ -39,7 +39,7 @@ func (repo *chatRepository) FindAll(ctx context.Context) ([]domain.Chat, error) 
 	var chats []domain.Chat
 	for rows.Next() {
 		var chat domain.Chat
-		if err := rows.Scan(&chat.ID, &chat.UsersID); err != nil {
+		if err := rows.Scan(&chat.ID, &chat.Name, &chat.Type); err != nil {
 			return nil, err
 		}
 
@@ -53,7 +53,7 @@ func (repo *chatRepository) FindByID(ctx context.Context, id int) (domain.Chat, 
 	row := repo.db.QueryRow(ctx, "SELECT * FROM chats WHERE id = $1", id)
 	var chat domain.Chat
 
-	if err := row.Scan(&chat.ID, &chat.UsersID); err != nil {
+	if err := row.Scan(&chat.ID, &chat.Name, &chat.Type); err != nil {
 		return domain.Chat{}, err
 	}
 
@@ -64,7 +64,7 @@ func (repo *chatRepository) Delete(ctx context.Context, id int) (domain.Chat, er
 	row := repo.db.QueryRow(ctx, "DELETE FROM chats WHERE id = $1 RETURNING *", id)
 
 	var deletedChat domain.Chat
-	if err := row.Scan(&deletedChat.ID, &deletedChat.UsersID); err != nil {
+	if err := row.Scan(&deletedChat.ID, &deletedChat.Name, &deletedChat.Type); err != nil {
 		return domain.Chat{}, err
 	}
 
@@ -73,10 +73,10 @@ func (repo *chatRepository) Delete(ctx context.Context, id int) (domain.Chat, er
 
 func (repo *chatRepository) Update(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
 	row := repo.db.QueryRow(ctx,
-		"UPDATE chats SET users_id = $2 WHERE id = $1", chat.ID, chat.UsersID)
+		"UPDATE chats SET name = $2, type = $3 WHERE id = $1", chat.ID, chat.Name, chat.Type)
 
 	var updatedChat domain.Chat
-	if err := row.Scan(&updatedChat.ID, &updatedChat.UsersID); err != nil {
+	if err := row.Scan(&updatedChat.ID, &updatedChat.Name, &updatedChat.Type); err != nil {
 		return domain.Chat{}, err
 	}
 
