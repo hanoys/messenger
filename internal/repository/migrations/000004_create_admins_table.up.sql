@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS admins(
+    id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP
+);
+

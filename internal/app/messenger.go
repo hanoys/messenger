@@ -10,6 +10,7 @@ import (
 	"github.com/hanoy/messenger/internal/handler"
 	"github.com/hanoy/messenger/internal/repository"
 	"github.com/hanoy/messenger/internal/service"
+	"github.com/hanoy/messenger/pkg/auth"
 	"github.com/hanoy/messenger/pkg/db/postgres"
 )
 
@@ -26,7 +27,8 @@ func Run(configPath string) {
 
     repo := repository.NewRepositories(dbpool)
 	services := service.NewServices(repo)
-	handler := handler.NewHandler(services)
+    tokenProvider := auth.NewProvider(config)
+	handler := handler.NewHandler(services, tokenProvider)
 
 	server := http.Server{
 		Handler:      handler.Init(),

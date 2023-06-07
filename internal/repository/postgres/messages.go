@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"time"
 
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,23 +15,25 @@ func NewMessageRepository(db *pgxpool.Pool) *messageRepository {
 	return &messageRepository{db}
 }
 
-func (repo *messageRepository) Add(ctx context.Context, msg domain.Message) (domain.Message, error) {
-	var id int
-    var sent_time time.Time
+func (repo *messageRepository) Add(ctx context.Context, sender_id int, recipient_id int, chat_id int, body string) (domain.Message, error) {
+	var addedMessage domain.Message
 	err := repo.db.QueryRow(ctx,
-		"INSERT INTO messages(sender_id, recipient_id, chat_id, time, body) VALUES ($1, $2, $3, now(), $4) RETURNING id, time",
-		msg.SenderID,
-		msg.RecipientID,
-        msg.ChatID,
-		msg.Body).Scan(&id, &sent_time)
+		"INSERT INTO messages(sender_id, recipient_id, chat_id, time, body) VALUES ($1, $2, $3, now(), $4) RETURNING *",
+		sender_id,
+		recipient_id,
+		chat_id,
+		body).Scan(&addedMessage.ID,
+		&addedMessage.SenderID,
+		&addedMessage.RecipientID,
+		&addedMessage.ChatID,
+		&addedMessage.Time,
+		&addedMessage.Body)
 
 	if err != nil {
 		return domain.Message{}, err
 	}
 
-	msg.ID = id
-    msg.Time = sent_time
-	return msg, nil
+	return addedMessage, nil
 }
 
 func (repo *messageRepository) FindAll(ctx context.Context) ([]domain.Message, error) {
@@ -49,7 +50,7 @@ func (repo *messageRepository) FindAll(ctx context.Context) ([]domain.Message, e
 		if err := rows.Scan(&msg.ID,
 			&msg.SenderID,
 			&msg.RecipientID,
-            &msg.ChatID,
+			&msg.ChatID,
 			&msg.Time,
 			&msg.Body); err != nil {
 			return nil, err
@@ -68,7 +69,7 @@ func (repo *messageRepository) FindByID(ctx context.Context, id int) (domain.Mes
 	if err := row.Scan(&msg.ID,
 		&msg.SenderID,
 		&msg.RecipientID,
-        &msg.ChatID,
+		&msg.ChatID,
 		&msg.Time,
 		&msg.Body); err != nil {
 		return domain.Message{}, err
@@ -91,7 +92,7 @@ func (repo *messageRepository) FindBySenderID(ctx context.Context, sender_id int
 		if err := rows.Scan(&msg.ID,
 			&msg.SenderID,
 			&msg.RecipientID,
-            &msg.ChatID,
+			&msg.ChatID,
 			&msg.Time,
 			&msg.Body); err != nil {
 			return nil, err
@@ -117,7 +118,7 @@ func (repo *messageRepository) FindByRecipientID(ctx context.Context, recipient_
 		if err := rows.Scan(&msg.ID,
 			&msg.SenderID,
 			&msg.RecipientID,
-            &msg.ChatID,
+			&msg.ChatID,
 			&msg.Time,
 			&msg.Body); err != nil {
 			return nil, err
@@ -136,7 +137,7 @@ func (repo *messageRepository) Delete(ctx context.Context, id int) (domain.Messa
 	if err := row.Scan(&deletedMsg.ID,
 		&deletedMsg.SenderID,
 		&deletedMsg.RecipientID,
-        &deletedMsg.ChatID,
+		&deletedMsg.ChatID,
 		&deletedMsg.Time,
 		&deletedMsg.Body); err != nil {
 		return domain.Message{}, err

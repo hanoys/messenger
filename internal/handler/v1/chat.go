@@ -7,16 +7,18 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/hanoy/messenger/internal/domain"
+	"github.com/hanoy/messenger/internal/domain/dto"
 	"github.com/hanoy/messenger/internal/websocket"
 )
 
 func (h *Handler) InitChatRoutes(router *mux.Router) {
-	router.HandleFunc("/chat", h.JoinChat).Methods(http.MethodGet)
-
-    router.HandleFunc("/chats", h.FindAllChats).Methods(http.MethodGet)
-	router.HandleFunc("/chats/{id}", h.FindChatsByID).Methods(http.MethodGet)
-	router.HandleFunc("/chats", h.CreateChat).Methods(http.MethodPut)
-    router.HandleFunc("/chats/{id}", h.DeleteChat).Methods(http.MethodDelete)
+    chatRouter := router.PathPrefix("/").Subrouter()
+    //router.HandleFunc("/chat", h.JoinChat).Methods(http.MethodGet)
+    chatRouter.Use(h.basicAuth)
+    chatRouter.HandleFunc("/chats", h.FindAllChats).Methods(http.MethodGet)
+	chatRouter.HandleFunc("/chats/{id}", h.FindChatsByID).Methods(http.MethodGet)
+	chatRouter.HandleFunc("/chats", h.CreateChat).Methods(http.MethodPut)
+    chatRouter.HandleFunc("/chats/{id}", h.DeleteChat).Methods(http.MethodDelete)
 
 }
 
@@ -63,14 +65,15 @@ func (h *Handler) FindChatsByID(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
-    var chat domain.Chat
-    err := json.NewDecoder(r.Body).Decode(&chat)
+    var chatDTO dto.CreateChatDTO
+    err := json.NewDecoder(r.Body).Decode(&chatDTO)
     if err != nil {
         writeError(w, http.StatusBadRequest, err.Error())
         return
     }
 
-    chat, err = h.services.Chats.Create(r.Context(), chat)
+    var chat domain.Chat
+    chat, err = h.services.Chats.Create(r.Context(), chatDTO)
     if err != nil {
         writeError(w, http.StatusConflict, err.Error())
         return

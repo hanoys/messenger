@@ -13,15 +13,24 @@ type Config struct {
 		Name     string `config:"DB_NAME"`
 		URL      string `config:"DB_URL"`
 	}
+
+	JWT struct {
+		TokenExpirationTime int64  `config:"JWT_EXPIRATION_TIME"`
+		SecretKey           string `config:"JWT_SECRET"`
+	}
 }
 
 func GetConfig(configPath string) (*Config, error) {
-    var conf Config 
-    err := config.From(configPath).To(&conf.DB)
-    if err != nil {
-        return nil, err
-    }
+	var conf Config
+	err := config.From(configPath).To(&conf.DB)
+	if err != nil {
+		return nil, err
+	}
 
-    return &conf, nil
+	err = config.From(configPath).To(&conf.JWT)
+	if err != nil {
+		return nil, err
+	}
+
+	return &conf, nil
 }
-
