@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/hanoy/messenger/internal/domain"
 	"github.com/hanoy/messenger/internal/domain/dto"
 )
 
@@ -49,7 +50,7 @@ func extractToken(authHeader string) (string, error) {
 	return splitedAuthHeader[1], nil
 }
 
-func (h *Handler) jwtAuth(next http.Handler) http.Handler {
+func (h *Handler) JWTAuth(next http.Handler, role domain.Role) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := extractToken(r.Header.Get("Authorization"))
 		if err != nil {
@@ -65,12 +66,11 @@ func (h *Handler) jwtAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		_, err = h.services.Users.FindByID(r.Context(), tokenPayload.UserID)
-		if err != nil {
+	    if tokenPayload.Role != role {
 			w.Header().Set("Content-Type", "application/json")
-			writeError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
+            writeError(w, http.StatusForbidden, "the resource is forbidden")
+            return
+        }
 
 		next.ServeHTTP(w, r)
 	})

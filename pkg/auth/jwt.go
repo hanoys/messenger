@@ -18,9 +18,10 @@ var (
 type Payload struct {
 	ID     uuid.UUID
 	UserID int
+	Role   string
 }
 
-func NewPayload(userID int) (*Payload, error) {
+func NewPayload(userID int, role string) (*Payload, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -29,6 +30,7 @@ func NewPayload(userID int) (*Payload, error) {
 	return &Payload{
 		ID:     tokenID,
 		UserID: userID,
+		Role:   role,
 	}, nil
 }
 
@@ -75,7 +77,7 @@ func (p *Provider) VerifyToken(tokenString string) (*Payload, error) {
 	}
 
 	claims := token.Claims.(*JWTClaims)
-    log.Println("token user id: ", claims.Payload.UserID)
+	log.Println("token user id: ", claims.Payload.UserID)
 	if claims.ExpiresAt < time.Now().Local().Unix() {
 		return nil, tokenExpiredErr
 	}

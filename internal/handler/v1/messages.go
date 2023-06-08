@@ -12,8 +12,8 @@ import (
 
 func (h *Handler) InitMessageRoutes(router *mux.Router) {
     msgRouter := router.PathPrefix("/").Subrouter()
+    msgRouter.Use(h.userJWTAuth)
 	msgRouter.HandleFunc("/msg", h.AddMessage).Methods(http.MethodPut)
-	msgRouter.HandleFunc("/msg", h.FindAllMessages).Methods(http.MethodGet)
 	msgRouter.HandleFunc("/msg/{id}", h.FindMessagesByID).Methods(http.MethodGet)
 	msgRouter.HandleFunc("/msg/{id}", h.DeleteMessage).Methods(http.MethodDelete)
 }
@@ -38,20 +38,6 @@ func (h *Handler) AddMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(msg)
-}
-
-// url: api/msg
-// method: get
-func (h *Handler) FindAllMessages(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
-	messages, err := h.services.Messages.FindAll(r.Context())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	json.NewEncoder(w).Encode(messages)
 }
 
 // url: api/msg/{id}

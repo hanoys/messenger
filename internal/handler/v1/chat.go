@@ -8,36 +8,15 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/hanoy/messenger/internal/domain"
 	"github.com/hanoy/messenger/internal/domain/dto"
-	"github.com/hanoy/messenger/internal/websocket"
 )
 
 func (h *Handler) InitChatRoutes(router *mux.Router) {
     chatRouter := router.PathPrefix("/").Subrouter()
-    //router.HandleFunc("/chat", h.JoinChat).Methods(http.MethodGet)
-    chatRouter.Use(h.basicAuth)
-    chatRouter.HandleFunc("/chats", h.FindAllChats).Methods(http.MethodGet)
+    chatRouter.Use(h.userJWTAuth)
 	chatRouter.HandleFunc("/chats/{id}", h.FindChatsByID).Methods(http.MethodGet)
 	chatRouter.HandleFunc("/chats", h.CreateChat).Methods(http.MethodPut)
     chatRouter.HandleFunc("/chats/{id}", h.DeleteChat).Methods(http.MethodDelete)
 
-}
-
-func (h *Handler) JoinChat(w http.ResponseWriter, r *http.Request) {
-	websocket.UpgradeConnection(w, r)
-}
-
-// url: /api/chats
-// method: get
-func (h *Handler) FindAllChats(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
-	chats, err := h.services.Chats.FindAll(r.Context())
-	if err != nil {
-		writeError(w, http.StatusConflict, err.Error())
-		return
-	}
-
-	json.NewEncoder(w).Encode(chats)
 }
 
 // url: api/chats/{id}
