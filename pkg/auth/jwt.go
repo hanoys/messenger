@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -21,7 +20,7 @@ var (
 type TokenSession struct {
 	SessionID      uuid.UUID
 	Tokens         *TokenPair
-	ExpirationTime time.Duration
+	ExpirationTime time.Time
 }
 
 type TokenPair struct {
@@ -99,7 +98,7 @@ func (p *Provider) NewSession(ctx context.Context, payload *Payload) (*TokenSess
 		Tokens: &TokenPair{
 			AccessToken:  accessTokenString,
 			RefreshToken: refreshTokenString},
-		ExpirationTime: time.Duration(p.cfg.JWT.RefreshTokenExpTime),
+		ExpirationTime: refreshExpTime,
 	}
 
 	tokensJSON, err := json.Marshal(session.Tokens)
@@ -108,12 +107,10 @@ func (p *Provider) NewSession(ctx context.Context, payload *Payload) (*TokenSess
 	}
 
 	_, err = p.redisClient.Set(ctx, session.SessionID.String(),
-		string(tokensJSON), session.ExpirationTime).Result()
+		string(tokensJSON), session.ExpirationTime.Sub(time.Now())).Result()
 	if err != nil {
 		return nil, err
 	}
-
-    log.Printf("session (%v) created\n", session.SessionID.String())
 
 	return session, nil
 }
@@ -144,7 +141,7 @@ func (p *Provider) CloseSession(ctx context.Context, tokenString string) error {
 		return errors.New("tokent wasn't deleted")
 	}
 
-    return nil
+	return nil
 }
 
 func (p *Provider) VerifyToken(ctx context.Context, tokenString string) (*Payload, error) {
@@ -157,7 +154,6 @@ func (p *Provider) VerifyToken(ctx context.Context, tokenString string) (*Payloa
 		return nil, tokenExpiredErr
 	}
 
-    log.Printf("check session %v\n", claims.Payload.SessionID.String())
 	_, err = p.redisClient.Get(ctx, claims.Payload.SessionID.String()).Result()
 	if err != nil {
 		return nil, err
