@@ -12,6 +12,7 @@ import (
 	"github.com/hanoy/messenger/internal/service"
 	"github.com/hanoy/messenger/pkg/auth"
 	"github.com/hanoy/messenger/pkg/db/postgres"
+	"github.com/hanoy/messenger/pkg/db/redis"
 )
 
 func Run(configPath string) {
@@ -27,7 +28,8 @@ func Run(configPath string) {
 
     repo := repository.NewRepositories(dbpool)
 	services := service.NewServices(repo)
-    tokenProvider := auth.NewProvider(config)
+    redisClient := redis.NewRedisClient(config.Redis.Host, config.Redis.Port)
+    tokenProvider := auth.NewProvider(redisClient, config)
 	handler := handler.NewHandler(services, tokenProvider)
 
 	server := http.Server{

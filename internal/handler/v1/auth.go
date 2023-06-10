@@ -41,7 +41,7 @@ func (h *Handler) basicAuth(next http.Handler) http.Handler {
 	})
 }
 
-func extractToken(authHeader string) (string, error) {
+func (h *Handler) extractToken(authHeader string) (string, error) {
 	splitedAuthHeader := strings.Split(authHeader, " ")
 	if len(splitedAuthHeader) != 2 {
 		return "", errors.New("invalid authorization header")
@@ -52,14 +52,14 @@ func extractToken(authHeader string) (string, error) {
 
 func (h *Handler) JWTAuth(next http.Handler, role domain.Role) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenString, err := extractToken(r.Header.Get("Authorization"))
+		tokenString, err := h.extractToken(r.Header.Get("Authorization"))
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		tokenPayload, err := h.tokenProvider.VerifyToken(tokenString)
+		tokenPayload, err := h.tokenProvider.VerifyToken(r.Context(), tokenString)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			writeError(w, http.StatusUnauthorized, err.Error())

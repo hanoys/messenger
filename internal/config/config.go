@@ -15,8 +15,14 @@ type Config struct {
 	}
 
 	JWT struct {
-		TokenExpirationTime int64  `config:"JWT_EXPIRATION_TIME"`
+		AccessTokenExpTime  int64  `config:"JWT_ACCESS_EXPIRATION_TIME"`
+		RefreshTokenExpTime int64  `config:"JWT_REFRESH_EXPIRATION_TIME"`
 		SecretKey           string `config:"JWT_SECRET"`
+	}
+
+	Redis struct {
+		Host string `config:"REDIS_HOST"`
+		Port string `config:"REDIS_PORT"`
 	}
 }
 
@@ -28,6 +34,11 @@ func GetConfig(configPath string) (*Config, error) {
 	}
 
 	err = config.From(configPath).To(&conf.JWT)
+	if err != nil {
+		return nil, err
+	}
+
+	err = config.From(configPath).To(&conf.Redis)
 	if err != nil {
 		return nil, err
 	}

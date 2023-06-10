@@ -31,19 +31,13 @@ func (h *Handler) LogInAdmin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := h.tokenProvider.CreateToken(tokenPayload)
+    session, err := h.tokenProvider.NewSession(r.Context(), tokenPayload)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	token := struct {
-		Token string `json:"token"`
-	}{
-		Token: tokenString,
-	}
-
-    json.NewEncoder(w).Encode(token)
+    json.NewEncoder(w).Encode(session.Tokens)
 }
 
 func (h *Handler) LogOutAdmin(w http.ResponseWriter, r *http.Request) {

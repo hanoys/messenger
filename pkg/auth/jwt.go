@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"time"
@@ -8,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/hanoy/messenger/internal/config"
+	"github.com/redis/go-redis/v9"
 )
 
 var (
@@ -15,22 +18,33 @@ var (
 	invalidTokenErr = errors.New("invalid token")
 )
 
+type TokenSession struct {
+	SessionID      uuid.UUID
+	Tokens         *TokenPair
+	ExpirationTime time.Duration
+}
+
+type TokenPair struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 type Payload struct {
-	ID     uuid.UUID
-	UserID int
-	Role   string
+	SessionID uuid.UUID
+	UserID    int
+	Role      string
 }
 
 func NewPayload(userID int, role string) (*Payload, error) {
-	tokenID, err := uuid.NewRandom()
+	sessionID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Payload{
-		ID:     tokenID,
-		UserID: userID,
-		Role:   role,
+		SessionID: sessionID,
+		UserID:    userID,
+		Role:      role,
 	}, nil
 }
 
@@ -40,28 +54,119 @@ type JWTClaims struct {
 }
 
 type Provider struct {
-	cfg *config.Config
+	redisClient *redis.Client
+	cfg         *config.Config
 }
 
-func NewProvider(config *config.Config) *Provider {
-	return &Provider{config}
+func NewProvider(redisClient *redis.Client, cfg *config.Config) *Provider {
+	return &Provider{redisClient: redisClient,
+		cfg: cfg}
 }
 
-func (p *Provider) CreateToken(payload *Payload) (string, error) {
-	expirationTime := time.Now().Add(time.Minute * time.Duration(p.cfg.JWT.TokenExpirationTime))
+func (p *Provider) newTokenWithExpiration(ctx context.Context, payload *Payload, exp time.Time) (string, error) {
 	claims := &JWTClaims{
 		Payload: *payload,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
+			ExpiresAt: exp.Unix(),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(p.cfg.JWT.SecretKey))
-	return tokenString, err
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
 
-func (p *Provider) VerifyToken(tokenString string) (*Payload, error) {
+func (p *Provider) NewSession(ctx context.Context, payload *Payload) (*TokenSession, error) {
+	accessExpTime := time.Now().Add(time.Minute * time.Duration(p.cfg.JWT.AccessTokenExpTime))
+	refreshExpTime := time.Now().Add(time.Minute * time.Duration(p.cfg.JWT.RefreshTokenExpTime))
+
+	accessTokenString, err := p.newTokenWithExpiration(ctx, payload, accessExpTime)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshTokenString, err := p.newTokenWithExpiration(ctx, payload, refreshExpTime)
+	if err != nil {
+		return nil, err
+	}
+
+	session := &TokenSession{
+		SessionID: payload.SessionID,
+		Tokens: &TokenPair{
+			AccessToken:  accessTokenString,
+			RefreshToken: refreshTokenString},
+		ExpirationTime: time.Duration(p.cfg.JWT.RefreshTokenExpTime),
+	}
+
+	tokensJSON, err := json.Marshal(session.Tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = p.redisClient.Set(ctx, session.SessionID.String(),
+		string(tokensJSON), session.ExpirationTime).Result()
+	if err != nil {
+		return nil, err
+	}
+
+    log.Printf("session (%v) created\n", session.SessionID.String())
+
+	return session, nil
+}
+
+func (p *Provider) RefreshSession(ctx context.Context, refreshTokenString string) (*TokenSession, error) {
+	refreshClaims, err := p.parseToken(refreshTokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	p.redisClient.Del(ctx, refreshClaims.Payload.SessionID.String()).Result()
+
+	return p.NewSession(ctx, &refreshClaims.Payload)
+}
+
+func (p *Provider) CloseSession(ctx context.Context, tokenString string) error {
+	claims, err := p.parseToken(tokenString)
+	if err != nil {
+		return err
+	}
+
+	ok, err := p.redisClient.Del(ctx, claims.Payload.SessionID.String()).Result()
+	if err != nil {
+		return err
+	}
+
+	if ok != 1 {
+		return errors.New("tokent wasn't deleted")
+	}
+
+    return nil
+}
+
+func (p *Provider) VerifyToken(ctx context.Context, tokenString string) (*Payload, error) {
+	claims, err := p.parseToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	if claims.ExpiresAt < time.Now().Local().Unix() {
+		return nil, tokenExpiredErr
+	}
+
+    log.Printf("check session %v\n", claims.Payload.SessionID.String())
+	_, err = p.redisClient.Get(ctx, claims.Payload.SessionID.String()).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return &claims.Payload, nil
+}
+
+func (p *Provider) parseToken(tokenString string) (*JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString,
 		&JWTClaims{},
 		func(token *jwt.Token) (interface{}, error) {
@@ -77,9 +182,7 @@ func (p *Provider) VerifyToken(tokenString string) (*Payload, error) {
 	}
 
 	claims := token.Claims.(*JWTClaims)
-	log.Println("token user id: ", claims.Payload.UserID)
-	if claims.ExpiresAt < time.Now().Local().Unix() {
-		return nil, tokenExpiredErr
-	}
-	return &claims.Payload, nil
+
+	return claims, nil
 }
+

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/hanoy/messenger/internal/domain"
@@ -39,27 +40,9 @@ func (h *Handler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenPayload, err := auth.NewPayload(user.ID, string(domain.UserRole))
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	tokenString, err := h.tokenProvider.CreateToken(tokenPayload)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	token := struct {
-		Token string `json:"token"`
-	}{
-		Token: tokenString}
-
-	json.NewEncoder(w).Encode(token)
+    writeSuccess(w, fmt.Sprintf("user %v registered", user.ID))
 }
 
-// url:    /api/user/log-in
-// method: post
 func (h *Handler) LogInUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 
@@ -82,26 +65,45 @@ func (h *Handler) LogInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokenString, err := h.tokenProvider.CreateToken(tokenPayload)
+    session, err := h.tokenProvider.NewSession(r.Context(), tokenPayload)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	token := struct {
-		Token string `json:"token"`
-	}{
-		Token: tokenString,
-	}
-
-	json.NewEncoder(w).Encode(token)
-
+    json.NewEncoder(w).Encode(session.Tokens)
 }
 
 func (h *Handler) LogOutUser(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    tokenString, err := h.extractToken(r.Header.Get("Authorization"))
+    if err != nil {
+        writeError(w, http.StatusBadRequest, err.Error())
+        return
+    }
 
+    err = h.tokenProvider.CloseSession(r.Context(), tokenString)
+    if err != nil {
+        writeError(w, http.StatusInternalServerError, err.Error())
+        return
+    }
+
+    writeSuccess(w, "user loged out")
 }
 
 func (h *Handler) RefreshTokenUser(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json")
+    tokenString, err := h.extractToken(r.Header.Get("Authorization"))
+    if err != nil {
+        writeError(w, http.StatusBadRequest, err.Error())
+        return
+    }
 
+    session, err := h.tokenProvider.RefreshSession(r.Context(), tokenString)
+    if err != nil {
+        writeError(w, http.StatusInternalServerError, err.Error())
+        return
+    }
+
+    json.NewEncoder(w).Encode(session.Tokens)
 }
