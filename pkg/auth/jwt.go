@@ -49,7 +49,7 @@ func NewPayload(userID int, role string) (*Payload, error) {
 
 type JWTClaims struct {
 	Payload
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 type Provider struct {
@@ -65,9 +65,9 @@ func NewProvider(redisClient *redis.Client, cfg *config.Config) *Provider {
 func (p *Provider) newTokenWithExpiration(ctx context.Context, payload *Payload, exp time.Time) (string, error) {
 	claims := &JWTClaims{
 		Payload: *payload,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: exp.Unix(),
-		},
+		RegisteredClaims: jwt.RegisteredClaims{
+            ExpiresAt: jwt.NewNumericDate(exp),
+        },
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -150,7 +150,7 @@ func (p *Provider) VerifyToken(ctx context.Context, tokenString string) (*Payloa
 		return nil, err
 	}
 
-	if claims.ExpiresAt < time.Now().Local().Unix() {
+	if claims.ExpiresAt.Unix() < time.Now().Local().Unix() {
 		return nil, tokenExpiredErr
 	}
 
