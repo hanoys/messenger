@@ -40,7 +40,7 @@ func (h *Handler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    writeSuccess(w, fmt.Sprintf("user %v registered", user.ID))
+    writeSuccess(w, fmt.Sprintf("user %v registered", user.Login))
 }
 
 func (h *Handler) LogInUser(w http.ResponseWriter, r *http.Request) {
