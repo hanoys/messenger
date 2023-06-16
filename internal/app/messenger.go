@@ -26,9 +26,13 @@ func Run(configPath string) {
 		log.Fatalf("unable to establish connection with database: %v", err)
 	}
 
+	redisClient, err := redis.NewRedisClient(context.Background(), cfg.Redis.Host, cfg.Redis.Port)
+    if err != nil {
+        log.Fatalf("unable to establish connection with redis: %v", err)
+    }
+
 	repo := repository.NewRepositories(dbpool)
 	services := service.NewServices(repo)
-	redisClient := redis.NewRedisClient(cfg.Redis.Host, cfg.Redis.Port)
 	tokenProvider := auth.NewProvider(redisClient, cfg)
 	serviceHandler := handler.NewHandler(services, tokenProvider)
 
