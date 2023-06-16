@@ -1,15 +1,19 @@
-FROM golang:1.19-alpine
+FROM golang:1.19-alpine AS builder
 
 RUN apk update && apk upgrade
-RUN apk add --no-cache bash make
-RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 WORKDIR /usr/src/app
-
 COPY go.mod go.sum ./
 
 RUN go mod download && go mod verify
 
 COPY . .
 
-CMD ["make"]
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./bin/app ./cmd/app/main.go
+
+FROM scratch
+
+COPY --from=builder /usr/src/app/bin/ .
+COPY --from=builder /usr/src/app/.env.local .
+
+CMD ["./app"]
