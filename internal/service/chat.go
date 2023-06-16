@@ -5,15 +5,16 @@ import (
 	"errors"
 
 	"github.com/hanoy/messenger/internal/domain"
+	"github.com/hanoy/messenger/internal/domain/dto"
 	"github.com/hanoy/messenger/internal/repository"
 )
 
 type chatService struct {
-	repositories repository.Repositories
+	repositories *repository.Repositories
 }
 
 func newChatService(repositories *repository.Repositories) *chatService {
-	return &chatService{repositories: *repositories}
+	return &chatService{repositories: repositories}
 }
 
 func (s *chatService) FindAll(ctx context.Context) ([]domain.Chat, error) {
@@ -33,14 +34,14 @@ func (s *chatService) FindByID(ctx context.Context, id int) (domain.Chat, error)
 	return s.repositories.Chats.FindByID(ctx, id)
 }
 
-func (s *chatService) Create(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
-	return s.repositories.Chats.Create(ctx, chat)
+func (s *chatService) Create(ctx context.Context, chatDTO dto.CreateChatDTO) (domain.Chat, error) {
+	return s.repositories.Chats.Create(ctx, chatDTO.Name, chatDTO.Type)
 }
 
 func (s *chatService) Delete(ctx context.Context, id int) (domain.Chat, error) {
 	return s.repositories.Chats.Delete(ctx, id)
 }
 
-func (s *chatService) Update(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
-	return s.repositories.Chats.Update(ctx, chat)
+func (s *chatService) Update(ctx context.Context, chatDTO dto.UpdateChatDTO) (domain.Chat, error) {
+	return s.repositories.Chats.Update(ctx, chatDTO.ID, chatDTO.Name, chatDTO.Type)
 }

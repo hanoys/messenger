@@ -10,7 +10,16 @@ type errorResponse struct {
 	Message string
 }
 
+type successResponse struct {
+    Message string `json:"data"`
+}
+
 func writeError(w http.ResponseWriter, code int, message string) {
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(errorResponse{Code: code, Message: message})
+}
+
+func writeSuccess(w http.ResponseWriter, message string) {
+    w.WriteHeader(http.StatusOK)
+    json.NewEncoder(w).Encode(successResponse{Message: message})
 }

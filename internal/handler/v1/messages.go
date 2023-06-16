@@ -7,13 +7,15 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/hanoy/messenger/internal/domain"
+	"github.com/hanoy/messenger/internal/domain/dto"
 )
 
 func (h *Handler) InitMessageRoutes(router *mux.Router) {
-	router.HandleFunc("/msg", h.AddMessage).Methods(http.MethodPut)
-	router.HandleFunc("/msg", h.FindAllMessages).Methods(http.MethodGet)
-	router.HandleFunc("/msg/{id}", h.FindMessagesByID).Methods(http.MethodGet)
-	router.HandleFunc("/msg/{id}", h.DeleteMessage).Methods(http.MethodDelete)
+    msgRouter := router.PathPrefix("/").Subrouter()
+    msgRouter.Use(h.userJWTAuth)
+	msgRouter.HandleFunc("/msg", h.AddMessage).Methods(http.MethodPut)
+	msgRouter.HandleFunc("/msg/{id}", h.FindMessagesByID).Methods(http.MethodGet)
+	msgRouter.HandleFunc("/msg/{id}", h.DeleteMessage).Methods(http.MethodDelete)
 }
 
 // url: api/msg
@@ -21,34 +23,21 @@ func (h *Handler) InitMessageRoutes(router *mux.Router) {
 func (h *Handler) AddMessage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "applicatoin/json")
 
-	var msg domain.Message
-	err := json.NewDecoder(r.Body).Decode(&msg)
+	var msgDTO dto.AddMessageDTO
+	err := json.NewDecoder(r.Body).Decode(&msgDTO)
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	msg, err = h.services.Messages.Add(r.Context(), msg)
+    var msg domain.Message
+	msg, err = h.services.Messages.Add(r.Context(), msgDTO)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	json.NewEncoder(w).Encode(msg)
-}
-
-// url: api/msg
-// method: get
-func (h *Handler) FindAllMessages(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
-	messages, err := h.services.Messages.FindAll(r.Context())
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	json.NewEncoder(w).Encode(messages)
 }
 
 // url: api/msg/{id}

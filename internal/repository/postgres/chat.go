@@ -15,17 +15,18 @@ func NewChatRepository(db *pgxpool.Pool) *chatRepository {
 	return &chatRepository{db}
 }
 
-func (repo *chatRepository) Create(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
-	var id int
+func (repo *chatRepository) Create(ctx context.Context, name string, chat_type string) (domain.Chat, error) {
+    var createdChat domain.Chat
+
 	err := repo.db.QueryRow(ctx,
-		"INSERT INTO chats(name, type) VALUES ($1, $2) RETURNING id",
-		chat.Name, chat.Type).Scan(&id)
+		"INSERT INTO chats(name, type) VALUES ($1, $2) RETURNING *",
+		name, chat_type).Scan(&createdChat.ID,
+        &createdChat.Name, &createdChat.Type)
 	if err != nil {
 		return domain.Chat{}, err
 	}
 
-	chat.ID = id
-	return chat, nil
+	return createdChat, nil
 }
 
 func (repo *chatRepository) FindAll(ctx context.Context) ([]domain.Chat, error) {
@@ -71,9 +72,9 @@ func (repo *chatRepository) Delete(ctx context.Context, id int) (domain.Chat, er
 	return deletedChat, nil
 }
 
-func (repo *chatRepository) Update(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
+func (repo *chatRepository) Update(ctx context.Context, id int, name string, chat_type string) (domain.Chat, error) {
 	row := repo.db.QueryRow(ctx,
-		"UPDATE chats SET name = $2, type = $3 WHERE id = $1", chat.ID, chat.Name, chat.Type)
+		"UPDATE chats SET name = $2, type = $3 WHERE id = $1", id, name, chat_type)
 
 	var updatedChat domain.Chat
 	if err := row.Scan(&updatedChat.ID, &updatedChat.Name, &updatedChat.Type); err != nil {

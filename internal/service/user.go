@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hanoy/messenger/internal/domain"
+	"github.com/hanoy/messenger/internal/domain/dto"
 	"github.com/hanoy/messenger/internal/repository"
 )
 
@@ -32,18 +33,24 @@ func (s *usersService) FindByID(ctx context.Context, id int) (domain.User, error
 	return s.repositories.Users.FindById(ctx, id)
 }
 
-func (s *usersService) FindByEmail(ctx context.Context, email string) (domain.User, error) {
-	return s.repositories.Users.FindByEmail(ctx, email)
+func (s *usersService) FindByEmail(ctx context.Context, userDTO dto.FindByEmailUserDTO) (domain.User, error) {
+	return s.repositories.Users.FindByEmail(ctx, userDTO.Email)
 }
 
-func (s *usersService) Create(ctx context.Context, user domain.User) (domain.User, error) {
-	return s.repositories.Users.Create(ctx, user)
+func (s *usersService) FindByCredentials(ctx context.Context, userDTO dto.LogInUserDTO) (domain.User, error) {
+    return s.repositories.Users.FindByCredentials(ctx, userDTO.Email, userDTO.Password)
+}
+
+func (s *usersService) Create(ctx context.Context, userDTO dto.CreateUserDTO) (domain.User, error) {
+	return s.repositories.Users.Create(ctx, userDTO.FirstName,
+		userDTO.LastName, userDTO.Email, userDTO.Login, userDTO.Password)
 }
 
 func (s *usersService) Delete(ctx context.Context, id int) (domain.User, error) {
 	return s.repositories.Users.Delete(ctx, id)
 }
 
-func (s *usersService) Update(ctx context.Context, user domain.User) (domain.User, error) {
-	return s.repositories.Users.Update(ctx, user)
+func (s *usersService) Update(ctx context.Context, userDTO dto.UpdateUserDTO) (domain.User, error) {
+	return s.repositories.Users.Update(ctx, userDTO.ID, userDTO.FirstName,
+		userDTO.LastName, userDTO.Email, userDTO.Login, userDTO.Password)
 }

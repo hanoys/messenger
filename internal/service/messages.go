@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/hanoy/messenger/internal/domain"
+	"github.com/hanoy/messenger/internal/domain/dto"
 	"github.com/hanoy/messenger/internal/repository"
 )
 
@@ -15,8 +16,8 @@ func newMessagesService(repositories *repository.Repositories) *messagesService 
 	return &messagesService{repositories: repositories}
 }
 
-func (s *messagesService) Add(ctx context.Context, msg domain.Message) (domain.Message, error) {
-	return s.repositories.Messages.Add(ctx, msg)
+func (s *messagesService) Add(ctx context.Context, msgDTO dto.AddMessageDTO) (domain.Message, error) {
+	return s.repositories.Messages.Add(ctx, msgDTO.SenderID, msgDTO.RecipientID, msgDTO.ChatID, msgDTO.Body)
 }
 
 func (s *messagesService) FindAll(ctx context.Context) ([]domain.Message, error) {

@@ -12,5 +12,10 @@ func CreateConnectionPool(ctx context.Context, uri string) (*pgxpool.Pool, error
 		return nil, err
 	}
 
+    if err = dbpool.Ping(ctx); err != nil {
+        dbpool.Close()
+        return nil, err
+    }
+
 	return dbpool, nil
 }
