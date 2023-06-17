@@ -11,8 +11,8 @@ import (
 )
 
 func (h *Handler) InitMessageRoutes(router *mux.Router) {
-    msgRouter := router.PathPrefix("/").Subrouter()
-    msgRouter.Use(h.userJWTAuth)
+	msgRouter := router.PathPrefix("/").Subrouter()
+	msgRouter.Use(h.userJWTAuth)
 	msgRouter.HandleFunc("/msg", h.AddMessage).Methods(http.MethodPut)
 	msgRouter.HandleFunc("/msg/{id}", h.FindMessagesByID).Methods(http.MethodGet)
 	msgRouter.HandleFunc("/msg/{id}", h.DeleteMessage).Methods(http.MethodDelete)
@@ -21,8 +21,6 @@ func (h *Handler) InitMessageRoutes(router *mux.Router) {
 // url: api/msg
 // method: put
 func (h *Handler) AddMessage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
 	var msgDTO dto.AddMessageDTO
 	err := json.NewDecoder(r.Body).Decode(&msgDTO)
 	if err != nil {
@@ -30,21 +28,20 @@ func (h *Handler) AddMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    var msg domain.Message
+	var msg domain.Message
 	msg, err = h.services.Messages.Add(r.Context(), msgDTO)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	w.Header().Add("Content-Type", "applicatoin/json")
 	json.NewEncoder(w).Encode(msg)
 }
 
 // url: api/msg/{id}
 // method: get
 func (h *Handler) FindMessagesByID(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -57,14 +54,13 @@ func (h *Handler) FindMessagesByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "applicatoin/json")
 	json.NewEncoder(w).Encode(messages)
 }
 
 // url: api/msg/{id}
 // method: delete
 func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -77,5 +73,6 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "applicatoin/json")
 	json.NewEncoder(w).Encode(msg)
 }

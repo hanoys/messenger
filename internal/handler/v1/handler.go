@@ -7,8 +7,8 @@ import (
 )
 
 type Handler struct {
-    services *service.Services
-    tokenProvider *auth.Provider
+	services      *service.Services
+	tokenProvider *auth.Provider
 }
 
 func NewHandler(services *service.Services, provider *auth.Provider) *Handler {
@@ -16,8 +16,8 @@ func NewHandler(services *service.Services, provider *auth.Provider) *Handler {
 }
 
 func (h *Handler) InitRoutes(router *mux.Router) {
-    h.InitUserRoutes(router)
-    h.InitAdminRoutes(router)
-    h.InitChatRoutes(router)
-    h.InitMessageRoutes(router)
+	h.InitUserRoutes(router)
+	h.InitAdminRoutes(router)
+	h.InitChatRoutes(router)
+	h.InitMessageRoutes(router)
 }

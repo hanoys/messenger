@@ -27,9 +27,9 @@ func Run(configPath string) {
 	}
 
 	redisClient, err := redis.NewRedisClient(context.Background(), cfg.Redis.Host, cfg.Redis.Port)
-    if err != nil {
-        log.Fatalf("unable to establish connection with redis: %v", err)
-    }
+	if err != nil {
+		log.Fatalf("unable to establish connection with redis: %v", err)
+	}
 
 	repo := repository.NewRepositories(dbpool)
 	services := service.NewServices(repo)

@@ -66,8 +66,8 @@ func (p *Provider) newTokenWithExpiration(ctx context.Context, payload *Payload,
 	claims := &JWTClaims{
 		Payload: *payload,
 		RegisteredClaims: jwt.RegisteredClaims{
-            ExpiresAt: jwt.NewNumericDate(exp),
-        },
+			ExpiresAt: jwt.NewNumericDate(exp),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -181,4 +181,3 @@ func (p *Provider) parseToken(tokenString string) (*JWTClaims, error) {
 
 	return claims, nil
 }
-

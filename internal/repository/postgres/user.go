@@ -106,10 +106,10 @@ func (repo *usersRepository) FindByCredentials(ctx context.Context, email string
 	var user domain.User
 
 	if err := row.Scan(&user.ID,
-        &user.FirstName,
-        &user.LastName,
+		&user.FirstName,
+		&user.LastName,
 		&user.Email,
-        &user.Nickname,
+		&user.Nickname,
 		&user.Password,
 		&user.CreatedAt); err != nil {
 		return domain.User{}, err

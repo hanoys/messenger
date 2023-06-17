@@ -38,7 +38,7 @@ func (s *usersService) FindByEmail(ctx context.Context, userDTO dto.FindByEmailU
 }
 
 func (s *usersService) FindByCredentials(ctx context.Context, userDTO dto.LogInUserDTO) (domain.User, error) {
-    return s.repositories.Users.FindByCredentials(ctx, userDTO.Email, userDTO.Password)
+	return s.repositories.Users.FindByCredentials(ctx, userDTO.Email, userDTO.Password)
 }
 
 func (s *usersService) Create(ctx context.Context, userDTO dto.CreateUserDTO) (domain.User, error) {

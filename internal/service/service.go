@@ -15,7 +15,7 @@ type Users interface {
 	FindAll(ctx context.Context) ([]domain.User, error)
 	FindByID(ctx context.Context, id int) (domain.User, error)
 	FindByEmail(ctx context.Context, userDTO dto.FindByEmailUserDTO) (domain.User, error)
-    FindByCredentials(ctx context.Context, userDTO dto.LogInUserDTO) (domain.User, error)
+	FindByCredentials(ctx context.Context, userDTO dto.LogInUserDTO) (domain.User, error)
 	Create(ctx context.Context, userDTO dto.CreateUserDTO) (domain.User, error)
 	Delete(ctx context.Context, id int) (domain.User, error)
 	Update(ctx context.Context, userDTO dto.UpdateUserDTO) (domain.User, error)

@@ -35,50 +35,45 @@ func (h *Handler) InitAdminRoutes(router *mux.Router) {
 // url: api/users
 // method: get
 func (h *Handler) FindAllUsers(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	users, err := h.services.Users.FindAll(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
 }
 
 // url: /api/chats
 // method: get
 func (h *Handler) FindAllChats(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
 	chats, err := h.services.Chats.FindAll(r.Context())
 	if err != nil {
 		writeError(w, http.StatusConflict, err.Error())
 		return
 	}
 
+	w.Header().Add("Content-Type", "applicatoin/json")
 	json.NewEncoder(w).Encode(chats)
 }
 
 // url: api/msg
 // method: get
 func (h *Handler) FindAllMessages(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "applicatoin/json")
-
 	messages, err := h.services.Messages.FindAll(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	w.Header().Add("Content-Type", "applicatoin/json")
 	json.NewEncoder(w).Encode(messages)
 }
 
 // url: api/users/
 // method: put
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	var userDTO dto.CreateUserDTO
 	err := json.NewDecoder(r.Body).Decode(&userDTO)
 	if err != nil {
@@ -93,14 +88,13 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
 // url: api/users/{id}
 // method: delete
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -113,6 +107,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 
 }

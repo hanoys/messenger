@@ -11,15 +11,17 @@ type errorResponse struct {
 }
 
 type successResponse struct {
-    Message string `json:"data"`
+	Message string `json:"data"`
 }
 
 func writeError(w http.ResponseWriter, code int, message string) {
+	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(errorResponse{Code: code, Message: message})
 }
 
 func writeSuccess(w http.ResponseWriter, message string) {
-    w.WriteHeader(http.StatusOK)
-    json.NewEncoder(w).Encode(successResponse{Message: message})
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(successResponse{Message: message})
 }

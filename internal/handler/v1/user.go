@@ -23,12 +23,9 @@ func (h *Handler) InitUserRoutes(router *mux.Router) {
 	authUserRouter.HandleFunc("/user/{id}", h.FindUserById).Methods(http.MethodGet)
 }
 
-
 // url: api/users/{id}
 // method: get
 func (h *Handler) FindUserById(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err.Error())
@@ -41,9 +38,10 @@ func (h *Handler) FindUserById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
 
 func (h *Handler) userJWTAuth(next http.Handler) http.Handler {
-    return h.JWTAuth(next, domain.UserRole)
+	return h.JWTAuth(next, domain.UserRole)
 }

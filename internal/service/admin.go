@@ -17,5 +17,5 @@ func newAdminsService(repositories *repository.Repositories) *adminsService {
 }
 
 func (s *adminsService) FindByCredentials(ctx context.Context, adminDTO dto.LogInAdminDTO) (domain.Admin, error) {
-    return s.repositories.Admins.FindByCredentials(ctx, adminDTO.Email, adminDTO.Password) 
+	return s.repositories.Admins.FindByCredentials(ctx, adminDTO.Email, adminDTO.Password)
 }

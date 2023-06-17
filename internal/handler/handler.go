@@ -8,18 +8,18 @@ import (
 )
 
 type Handler struct {
-    services *service.Services
-    tokenProvider *auth.Provider
+	services      *service.Services
+	tokenProvider *auth.Provider
 }
 
 func NewHandler(services *service.Services, provider *auth.Provider) *Handler {
-    return &Handler{services, provider} 
+	return &Handler{services, provider}
 }
 
 func (h *Handler) Init() *mux.Router {
-    router := mux.NewRouter() 
-    apiRouter := router.PathPrefix("/api").Subrouter()
-    handler := v1.NewHandler(h.services, h.tokenProvider)
-    handler.InitRoutes(apiRouter)
-    return router
+	router := mux.NewRouter()
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	handler := v1.NewHandler(h.services, h.tokenProvider)
+	handler.InitRoutes(apiRouter)
+	return router
 }

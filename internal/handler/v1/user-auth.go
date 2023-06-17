@@ -13,8 +13,6 @@ import (
 // url:    /api/user/sign-up
 // method: post
 func (h *Handler) SignUpUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	var userDTO dto.SignUpUserDTO
 	err := json.NewDecoder(r.Body).Decode(&userDTO)
 	if err != nil {
@@ -32,7 +30,7 @@ func (h *Handler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		FirstName: userDTO.FirstName,
 		LastName:  userDTO.LastName,
 		Email:     userDTO.Email,
-		Nickname:     userDTO.Nickname,
+		Nickname:  userDTO.Nickname,
 		Password:  userDTO.Password,
 	})
 	if err != nil {
@@ -40,12 +38,10 @@ func (h *Handler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    writeSuccess(w, fmt.Sprintf("user %v registered", user.Nickname))
+	writeSuccess(w, fmt.Sprintf("user %v registered", user.Nickname))
 }
 
 func (h *Handler) LogInUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
-
 	var userDTO dto.LogInUserDTO
 	err := json.NewDecoder(r.Body).Decode(&userDTO)
 	if err != nil {
@@ -59,51 +55,51 @@ func (h *Handler) LogInUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    tokenPayload, err := auth.NewPayload(user.ID, domain.UserRole)
+	tokenPayload, err := auth.NewPayload(user.ID, domain.UserRole)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-    session, err := h.tokenProvider.NewSession(r.Context(), tokenPayload)
+	session, err := h.tokenProvider.NewSession(r.Context(), tokenPayload)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-    json.NewEncoder(w).Encode(session.Tokens)
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(session.Tokens)
 }
 
 func (h *Handler) LogOutUser(w http.ResponseWriter, r *http.Request) {
-    w.Header().Set("Content-Type", "application/json")
-    tokenString, err := h.extractToken(r.Header.Get("Authorization"))
-    if err != nil {
-        writeError(w, http.StatusBadRequest, err.Error())
-        return
-    }
+	tokenString, err := h.extractToken(r.Header.Get("Authorization"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
-    err = h.tokenProvider.CloseSession(r.Context(), tokenString)
-    if err != nil {
-        writeError(w, http.StatusInternalServerError, err.Error())
-        return
-    }
+	err = h.tokenProvider.CloseSession(r.Context(), tokenString)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
-    writeSuccess(w, "user loged out")
+	writeSuccess(w, "user loged out")
 }
 
 func (h *Handler) RefreshTokenUser(w http.ResponseWriter, r *http.Request) {
-    w.Header().Set("Content-Type", "application/json")
-    tokenString, err := h.extractToken(r.Header.Get("Authorization"))
-    if err != nil {
-        writeError(w, http.StatusBadRequest, err.Error())
-        return
-    }
+	tokenString, err := h.extractToken(r.Header.Get("Authorization"))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
-    session, err := h.tokenProvider.RefreshSession(r.Context(), tokenString)
-    if err != nil {
-        writeError(w, http.StatusInternalServerError, err.Error())
-        return
-    }
+	session, err := h.tokenProvider.RefreshSession(r.Context(), tokenString)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 
-    json.NewEncoder(w).Encode(session.Tokens)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(session.Tokens)
 }

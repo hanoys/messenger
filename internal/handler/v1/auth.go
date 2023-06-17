@@ -36,7 +36,6 @@ func (h *Handler) basicAuth(next http.Handler) http.Handler {
 		}
 
 		w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
-		w.Header().Set("Content-Type", "application/json")
 		writeError(w, http.StatusUnauthorized, "Unauthorized")
 	})
 }
@@ -54,23 +53,20 @@ func (h *Handler) JWTAuth(next http.Handler, role domain.Role) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString, err := h.extractToken(r.Header.Get("Authorization"))
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
 		tokenPayload, err := h.tokenProvider.VerifyToken(r.Context(), tokenString)
 		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
 			writeError(w, http.StatusUnauthorized, err.Error())
 			return
 		}
 
-	    if tokenPayload.Role != role {
-			w.Header().Set("Content-Type", "application/json")
-            writeError(w, http.StatusForbidden, "the resource is forbidden")
-            return
-        }
+		if tokenPayload.Role != role {
+			writeError(w, http.StatusForbidden, "the resource is forbidden")
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	})
