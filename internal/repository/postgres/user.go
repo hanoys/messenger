@@ -15,19 +15,19 @@ func NewUsersRepository(db *pgxpool.Pool) *usersRepository {
 	return &usersRepository{db}
 }
 
-func (repo *usersRepository) Create(ctx context.Context, firstName string, lastName string, email string, login string, password string) (domain.User, error) {
+func (repo *usersRepository) Create(ctx context.Context, firstName string, lastName string, email string, nickname string, password string) (domain.User, error) {
 	var createdUser domain.User
 	err := repo.db.QueryRow(ctx,
-		"INSERT INTO users(first_name, last_name, email, login, password, created_at) values($1, $2, $3, $4, $5, now()) RETURNING *",
+		"INSERT INTO users(first_name, last_name, email, nickname, password, created_at) values($1, $2, $3, $4, $5, now()) RETURNING *",
 		firstName,
 		lastName,
 		email,
-		login,
+		nickname,
 		password).Scan(&createdUser.ID,
 		&createdUser.FirstName,
 		&createdUser.LastName,
 		&createdUser.Email,
-		&createdUser.Login,
+		&createdUser.Nickname,
 		&createdUser.Password,
 		&createdUser.CreatedAt)
 	if err != nil {
@@ -52,7 +52,7 @@ func (repo *usersRepository) FindAll(ctx context.Context) ([]domain.User, error)
 			&user.FirstName,
 			&user.LastName,
 			&user.Email,
-			&user.Login,
+			&user.Nickname,
 			&user.Password,
 			&user.CreatedAt); err != nil {
 			return nil, err
@@ -73,7 +73,7 @@ func (repo *usersRepository) FindById(ctx context.Context, id int) (domain.User,
 		&user.FirstName,
 		&user.LastName,
 		&user.Email,
-		&user.Login,
+		&user.Nickname,
 		&user.Password,
 		&user.CreatedAt); err != nil {
 		return domain.User{}, err
@@ -90,7 +90,7 @@ func (repo *usersRepository) FindByEmail(ctx context.Context, email string) (dom
 		&user.FirstName,
 		&user.LastName,
 		&user.Email,
-		&user.Login,
+		&user.Nickname,
 		&user.Password,
 		&user.CreatedAt); err != nil {
 		return domain.User{}, err
@@ -109,7 +109,7 @@ func (repo *usersRepository) FindByCredentials(ctx context.Context, email string
         &user.FirstName,
         &user.LastName,
 		&user.Email,
-        &user.Login,
+        &user.Nickname,
 		&user.Password,
 		&user.CreatedAt); err != nil {
 		return domain.User{}, err
@@ -126,7 +126,7 @@ func (repo *usersRepository) Delete(ctx context.Context, id int) (domain.User, e
 		&deletedUser.FirstName,
 		&deletedUser.LastName,
 		&deletedUser.Email,
-		&deletedUser.Login,
+		&deletedUser.Nickname,
 		&deletedUser.Password,
 		&deletedUser.CreatedAt); err != nil {
 		return domain.User{}, err
@@ -135,17 +135,17 @@ func (repo *usersRepository) Delete(ctx context.Context, id int) (domain.User, e
 	return deletedUser, nil
 }
 
-func (repo *usersRepository) Update(ctx context.Context, id int, firstName string, lastName string, email string, login string, password string) (domain.User, error) {
+func (repo *usersRepository) Update(ctx context.Context, id int, firstName string, lastName string, email string, nickname string, password string) (domain.User, error) {
 	row := repo.db.QueryRow(ctx,
-		"UPDATE users SET first_name = $2, last_name = $3, email = $4, login = $5, password = $6 WHERE id = $1",
-		id, firstName, lastName, email, login, password)
+		"UPDATE users SET first_name = $2, last_name = $3, email = $4, nickname = $5, password = $6 WHERE id = $1",
+		id, firstName, lastName, email, nickname, password)
 
 	var updatedUser domain.User
 	if err := row.Scan(&updatedUser.ID,
 		&updatedUser.FirstName,
 		&updatedUser.LastName,
 		&updatedUser.Email,
-		&updatedUser.Login,
+		&updatedUser.Nickname,
 		&updatedUser.Password,
 		&updatedUser.CreatedAt); err != nil {
 		return domain.User{}, err

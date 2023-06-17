@@ -13,9 +13,9 @@ type Users interface {
 	FindById(ctx context.Context, id int) (domain.User, error)
 	FindByEmail(ctx context.Context, email string) (domain.User, error)
     FindByCredentials(ctx context.Context, email string, password string) (domain.User, error)
-	Create(ctx context.Context, firstName string, lastName string, email string, login string, password string) (domain.User, error)
+	Create(ctx context.Context, firstName string, lastName string, email string, nickname string, password string) (domain.User, error)
 	Delete(ctx context.Context, id int) (domain.User, error)
-	Update(ctx context.Context, id int, firstName string, lastName string, email string, login string, password string) (domain.User, error)
+	Update(ctx context.Context, id int, firstName string, lastName string, email string, nickname string, password string) (domain.User, error)
 }
 
 type Admins interface {

@@ -4,7 +4,7 @@ type CreateUserDTO struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
-	Login     string `json:"login"`
+	Nickname  string `json:"nickname"`
 	Password  string `json:"password"`
 }
 
@@ -13,7 +13,7 @@ type UpdateUserDTO struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
-	Login     string `json:"login"`
+	Nickname  string `json:"nickname"`
 	Password  string `json:"password"`
 }
 
@@ -25,11 +25,11 @@ type SignUpUserDTO struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
-	Login     string `json:"login"`
+	Nickname  string `json:"nickname"`
 	Password  string `json:"password"`
 }
 
 type LogInUserDTO struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

@@ -32,7 +32,7 @@ func (h *Handler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		FirstName: userDTO.FirstName,
 		LastName:  userDTO.LastName,
 		Email:     userDTO.Email,
-		Login:     userDTO.Login,
+		Nickname:     userDTO.Nickname,
 		Password:  userDTO.Password,
 	})
 	if err != nil {
@@ -40,7 +40,7 @@ func (h *Handler) SignUpUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-    writeSuccess(w, fmt.Sprintf("user %v registered", user.Login))
+    writeSuccess(w, fmt.Sprintf("user %v registered", user.Nickname))
 }
 
 func (h *Handler) LogInUser(w http.ResponseWriter, r *http.Request) {

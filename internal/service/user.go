@@ -43,7 +43,7 @@ func (s *usersService) FindByCredentials(ctx context.Context, userDTO dto.LogInU
 
 func (s *usersService) Create(ctx context.Context, userDTO dto.CreateUserDTO) (domain.User, error) {
 	return s.repositories.Users.Create(ctx, userDTO.FirstName,
-		userDTO.LastName, userDTO.Email, userDTO.Login, userDTO.Password)
+		userDTO.LastName, userDTO.Email, userDTO.Nickname, userDTO.Password)
 }
 
 func (s *usersService) Delete(ctx context.Context, id int) (domain.User, error) {
@@ -52,5 +52,5 @@ func (s *usersService) Delete(ctx context.Context, id int) (domain.User, error) 
 
 func (s *usersService) Update(ctx context.Context, userDTO dto.UpdateUserDTO) (domain.User, error) {
 	return s.repositories.Users.Update(ctx, userDTO.ID, userDTO.FirstName,
-		userDTO.LastName, userDTO.Email, userDTO.Login, userDTO.Password)
+		userDTO.LastName, userDTO.Email, userDTO.Nickname, userDTO.Password)
 }
